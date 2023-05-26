@@ -1,31 +1,35 @@
 #!/usr/bin/python3
-"""Accessing a REST API for todo lists of employees"""
+
+"""
+Gathers information from an Api
+"""
 
 import requests
 import sys
 
-
-if __name__ == '__main__':
-    employeeId = sys.argv[1]
-    baseUrl = "https://jsonplaceholder.typicode.com/users"
-    url = baseUrl + "/" + employeeId
-
-    response = requests.get(url)
-    employeeName = response.json().get('name')
-
-    todoUrl = url + "/todos"
-    response = requests.get(todoUrl)
-    tasks = response.json()
-    done = 0
-    done_tasks = []
-
-    for task in tasks:
-        if task.get('completed'):
-            done_tasks.append(task)
-            done += 1
-
-    print("Employee {} is done with tasks({}/{}):"
-          .format(employeeName, done, len(tasks)))
-
-    for task in done_tasks:
-        print("\t {}".format(task.get('title')))
+if __name__ == "__main__":
+    emp_id = sys.argv[1]
+    url = f"https://jsonplaceholder.typicode.com/users/{emp_id}"
+    res = requests.get(url)
+    new_url = url + "/todos"
+    new_res = requests.get(new_url)
+    if new_res.status_code == 200:
+        data = res.json()
+        name = f"{data.get('name')}"
+        tasks = new_res.json()
+        # print(tasks)
+        real = []
+        for i in tasks:
+            if i.get("completed") is True:
+                real.append(i)
+        # print(real)
+        titles = []
+        for task in tasks:
+            if task.get("completed") is True:
+                titles.append(task.get("title"))
+        done = f"Employee {name} is done with tasks"
+        print("{}({}/{}):".format(done, len(real), len(tasks)))
+        for tit in titles:
+            print("\t {}".format(tit))
+    else:
+        print(f"Error: {res.status_code}")
